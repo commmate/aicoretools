@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aicoretools"
+version = "0.0.2"
+description = "A library for integrating AI API tools."
+authors = [
+    {name = "CommMate", email = "contact@commmate.com"}
+]
+readme = "README.md"
+requires-python = ">=3.11"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: Creative Commons Attribution-NonCommercial 4.0 International License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "openai",
+    "youtube_transcript_api",
+    "beautifulsoup4",
+    "fpdf",
+    "arrow",
+    "googlemaps",
+    "pytest",
+]
+
+[project.urls]
+Homepage = "https://github.com/commmate/aicoretools"
+
+[tool.setuptools.packages.find]
+include = ["aicoretools", "aicoretools.*"]
