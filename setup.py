@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="aicoretools",
-    version="0.0.0",
+    version="0.0.1",
     author="CommMate",
     author_email="contact@commmate.com",
     description="A library for integrating AI API tools.",
