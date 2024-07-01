@@ -83,22 +83,22 @@ jobs:
       - name: Create Version Branch
         run: |
           next_version=${{ env.next_version }}
-          git checkout -b $next_version
           git remote set-url origin https://x-access-token:${{ secrets.PAT_TOKEN }}@github.com/commmate/aicoretools.git
+          git checkout -b $next_version
           git push origin $next_version
 
       - name: Update Latest Branch
         run: |
           next_version=${{ env.next_version }}
+          git remote set-url origin https://x-access-token:${{ secrets.PAT_TOKEN }}@github.com/commmate/aicoretools.git
           git checkout -b latest
           git reset --hard $next_version
-          git remote set-url origin https://x-access-token:${{ secrets.PAT_TOKEN }}@github.com/commmate/aicoretools.git
           git push --force origin latest
 
       - name: Merge Version to Main
         run: |
           next_version=${{ env.next_version }}
+          git remote set-url origin https://x-access-token:${{ secrets.PAT_TOKEN }}@github.com/commmate/aicoretools.git
           git checkout main
           git merge --no-ff $next_version -m "Merge version $next_version into main"
-          git remote set-url origin https://x-access-token:${{ secrets.PAT_TOKEN }}@github.com/commmate/aicoretools.git
           git push origin main
