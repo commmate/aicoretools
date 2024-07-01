@@ -20,6 +20,13 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
+        with:
+          persist-credentials: false
+
+      - name: Set Up Git
+        run: |
+          git config --global user.name "commmate"
+          git config --global user.email "commmatecompany@gmail.com"
 
       - name: Get Current Version
         id: get_current_version
@@ -70,8 +77,6 @@ jobs:
       - name: Commit Changes
         run: |
           next_version=${{ env.next_version }}
-          git config --global user.name "commmate"
-          git config --global user.email "commmate@users.noreply.github.com"
           git add setup.py
           git commit -m "Bump version to $next_version"
 
@@ -82,12 +87,18 @@ jobs:
       - name: Push Changes
         run: |
           git push origin main
+        env:
+          GH_GIT_USER: commmate
+          GH_GIT_PWD: ${{ secrets.PAT_TOKEN }}
 
       - name: Create Version Branch
         run: |
           next_version=${{ env.next_version }}
           git checkout -b $next_version
           git push origin $next_version
+        env:
+          GH_GIT_USER: commmate
+          GH_GIT_PWD: ${{ secrets.PAT_TOKEN }}
 
       - name: Update Latest Branch
         run: |
@@ -95,6 +106,9 @@ jobs:
           git checkout -b latest
           git reset --hard $next_version
           git push --force origin latest
+        env:
+          GH_GIT_USER: commmate
+          GH_GIT_PWD: ${{ secrets.PAT_TOKEN }}
 
       - name: Merge Version to Main
         run: |
@@ -102,3 +116,6 @@ jobs:
           git checkout main
           git merge --no-ff $next_version -m "Merge version $next_version into main"
           git push origin main
+        env:
+          GH_GIT_USER: commmate
+          GH_GIT_PWD: ${{ secrets.PAT_TOKEN }}
