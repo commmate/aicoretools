@@ -70,43 +70,35 @@ jobs:
       - name: Commit Changes
         run: |
           next_version=${{ env.next_version }}
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "commmate"
+          git config --global user.email "commmate@users.noreply.github.com"
           git add setup.py
           git commit -m "Bump version to $next_version"
 
-      - name: Push Changes
-        env:
-          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+      - name: Set Up Remote with PAT
         run: |
-          git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/commmate/aicoretools.git
+          git remote set-url origin https://commmate:${{ secrets.PAT_TOKEN }}@github.com/commmate/aicoretools.git
+
+      - name: Push Changes
+        run: |
           git push origin main
 
       - name: Create Version Branch
-        env:
-          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
         run: |
           next_version=${{ env.next_version }}
-          git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/commmate/aicoretools.git
           git checkout -b $next_version
           git push origin $next_version
 
       - name: Update Latest Branch
-        env:
-          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
         run: |
           next_version=${{ env.next_version }}
-          git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/commmate/aicoretools.git
           git checkout -b latest
           git reset --hard $next_version
           git push --force origin latest
 
       - name: Merge Version to Main
-        env:
-          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
         run: |
           next_version=${{ env.next_version }}
-          git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/commmate/aicoretools.git
           git checkout main
           git merge --no-ff $next_version -m "Merge version $next_version into main"
           git push origin main
