@@ -1,0 +1,3 @@
+# AICoreTools
+
+AICoreTools is a robust and modular library designed to streamline the integration of OpenAI API tools into your applications. It provides a comprehensive set of functionalities to handle various AI-driven tasks such as retrieving geographical coordinates, fetching tide data, and evaluating navigation safety. Built for efficiency and scalability, AICoreTools simplifies the development of intelligent applications by offering easy-to-use interfaces and seamless configuration management.
