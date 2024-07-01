@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "aicoretools"
-version = "0.0.2"
+version = "0.0.3"
 description = "A library for integrating AI API tools."
 authors = [
     {name = "CommMate", email = "contact@commmate.com"}
