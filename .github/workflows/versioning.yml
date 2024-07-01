@@ -1,0 +1,125 @@
+name: Versioning and Publishing
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_type:
+        description: 'Type of release (major, minor, patch)'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+          - major
+          - minor
+          - patch
+
+jobs:
+  version_and_publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Get Current Version
+        id: get_current_version
+        run: |
+          # Get the current version from setup.py
+          current_version=$(grep -oP '(?<=version=")[^"]*' setup.py)
+          echo "Current version: $current_version"
+          echo "::set-output name=current_version::$current_version"
+
+      - name: Calculate Next Version
+        id: calculate_next_version
+        run: |
+          current_version=${{ steps.get_current_version.outputs.current_version }}
+          echo "Current version: $current_version"
+
+          release_type="${{ github.event.inputs.release_type }}"
+          echo "Release type: $release_type"
+
+          # Split the version into components
+          IFS='.' read -r -a version_parts <<< "${current_version}"
+          major=${version_parts[0]}
+          minor=${version_parts[1]}
+          patch=${version_parts[2]}
+
+          case $release_type in
+            major)
+              major=$((major + 1))
+              minor=0
+              patch=0
+              ;;
+            minor)
+              minor=$((minor + 1))
+              patch=0
+              ;;
+            patch)
+              patch=$((patch + 1))
+              ;;
+            *)
+              echo "Invalid release type: $release_type"
+              exit 1
+              ;;
+          esac
+
+          # Format the next version
+          next_version="$major.$minor.$patch"
+          echo "Next version: $next_version"
+          echo "::set-output name=next_version::$next_version"
+
+      - name: Update Version in setup.py
+        run: |
+          next_version=${{ steps.calculate_next_version.outputs.next_version }}
+          echo "Updating setup.py with version: $next_version"
+          
+          # Update the version in setup.py
+          sed -i "s/version=\"[^\"]*\"/version=\"$next_version\"/" setup.py
+
+      - name: Commit Changes
+        run: |
+          next_version=${{ steps.calculate_next_version.outputs.next_version }}
+          echo "Committing changes for version: $next_version"
+          
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          
+          git add setup.py
+          git commit -m "Bump version to $next_version"
+          git push
+
+      - name: Create Version Branch
+        run: |
+          next_version=${{ steps.calculate_next_version.outputs.next_version }}
+          echo "Creating branch for version: $next_version"
+          
+          # Create a new branch for the next version
+          git checkout -b $next_version
+          git push origin $next_version
+
+      - name: Update Latest Branch
+        run: |
+          next_version=${{ steps.calculate_next_version.outputs.next_version }}
+          echo "Updating 'latest' branch to point to $next_version"
+          
+          # Delete the latest branch locally if it exists
+          git branch -D latest || true
+          
+          # Create the latest branch pointing to the new version
+          git checkout -b latest
+          git reset --hard $next_version
+          git push --force origin latest
+
+      - name: Merge Version to Main
+        run: |
+          next_version=${{ steps.calculate_next_version.outputs.next_version }}
+          echo "Merging version $next_version into main branch"
+          
+          # Checkout the main branch
+          git checkout main
+          
+          # Merge the new version branch into main
+          git merge --no-ff $next_version -m "Merge version $next_version into main"
+          
+          # Push the changes to the main branch
+          git push origin main
